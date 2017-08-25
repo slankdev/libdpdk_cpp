@@ -3,7 +3,7 @@
 /*-
  * MIT License
  *
- * Copyright (c) 2017 Susanoo G
+ * Copyright (c) 2017 Hiroki SHIROKURA
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,23 @@
  * SOFTWARE.
  */
 /**
- * @file   dpdk_struct.h
+ * @file   dpdk/struct.h
  * @brief  print dpdk headers function
  * @author Hiroki SHIROKURA
- * @date   2017.4.2
+ * @date   2017.8.25
  */
 
 
 
 #pragma once
-#include <slankdev/extra/dpdk_header.h>
-#include <slankdev/util.h>
+#include <string>
+#include <dpdk/hdr.h>
 
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
 
-namespace slankdev {
+namespace dpdk {
 
 #define DEPTHSTR "    "
 #define for_i(begin, end) for(size_t i=begin; i<end; i++)
@@ -919,27 +922,6 @@ inline void print(const struct rte_eth_link* raw, const char* name="", size_t de
 }
 
 
-} /* namespace slankdev */
+} /* namespace dpdk */
 
-
-// inline void print(const struct SLANKDEV* raw, const char* name="", size_t depth=0)
-// {
-//     printf_depth(depth, "SLANKDEV %s {\n", name);
-//
-//     depth++;
-//     printf_depth(depth, " : %u \n", raw->);
-//     depth--;
-//
-//     printf_depth(depth, "}\n");
-// }
-
-
-// inline const char* SLANKDEV 2str(SLANKDEV e)
-// {
-//     switch (e) {
-//         case : return "";
-//         case : return "";
-//         default: return "UNKNOWN_ERROR";
-//     }
-// }
 

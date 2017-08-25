@@ -1,18 +1,15 @@
 
 #pragma once
 
-#include <slankdev/unused.h>
-#include <slankdev/string.h>
-#include <slankdev/exception.h>
-
-#include <slankdev/extra/dpdk_header.h>
-#include <slankdev/extra/dpdk_struct.h>
-#include <slankdev/extra/dpdk_wrap.h>
+#include <dpdk/hdr.h>
+#include <dpdk/struct.h>
 
 #include <string>
 #include <exception>
 #include <sstream>
 #include <ostream>
+
+#define UNUSED(x) (void)(x)
 
 namespace dpdk {
 
@@ -48,7 +45,7 @@ inline struct rte_mbuf* pktmbuf_clone(struct rte_mbuf* md, struct rte_mempool* m
 {
   struct rte_mbuf* ret = ::rte_pktmbuf_clone(md, mp);
   if (!ret) {
-    throw slankdev::exception("rte_pktmbuf_clone");
+    throw dpdk::exception("rte_pktmbuf_clone");
   }
   return ret;
 }
@@ -67,7 +64,7 @@ inline struct rte_ring* ring_create(const char* name, size_t count, int socket_i
       case ENOMEM         : e += "ENOMEM         "; break;
       default: e += "unknown error"; break;
     }
-    throw slankdev::exception(e.c_str());
+    throw dpdk::exception(e.c_str());
   }
 }
 
@@ -76,7 +73,7 @@ static inline void errhandle(const char* str)
   std::string e = str;
   e += ": ";
   e += rte_strerror(rte_errno);
-  throw slankdev::exception(e.c_str());
+  throw dpdk::exception(e.c_str());
 }
 
 
@@ -87,7 +84,7 @@ inline void dpdk_boot(int argc, char** argv)
   if (ret < 0) {
     std::string e = "rte_eal_init: ";
     e += rte_strerror(rte_errno);
-    throw slankdev::exception(e.c_str());
+    throw dpdk::exception(e.c_str());
   }
 }
 
@@ -116,7 +113,7 @@ inline rte_mempool* mp_alloc(const char* name)
   if (!mp) {
     std::string e = "rte_pktmbuf_pool_create: ";
     e += rte_strerror(rte_errno);
-    throw slankdev::exception(e.c_str());
+    throw dpdk::exception(e.c_str());
   }
   return mp;
 }
@@ -131,7 +128,7 @@ inline rte_ring* ring_alloc(const char* name, size_t sizeofring)
    */
   int socket_id  = rte_socket_id();
   uint32_t flags = 0;
-  rte_ring* r = slankdev::ring_create(name, sizeofring, socket_id, flags);
+  rte_ring* r = dpdk::ring_create(name, sizeofring, socket_id, flags);
   return r;
 }
 
@@ -219,7 +216,7 @@ inline void port_configure(uint8_t port, size_t nb_rxq, size_t nb_txq,
           break;
         default:
           e += "unknown error";
-          throw slankdev::exception(e.c_str());
+          throw dpdk::exception(e.c_str());
           break;
       }
     }
@@ -236,7 +233,7 @@ inline void port_configure(uint8_t port, size_t nb_rxq, size_t nb_txq,
           break;
         default:
           e += "unknown error";
-          throw slankdev::exception(e.c_str());
+          throw dpdk::exception(e.c_str());
           break;
       }
     }
@@ -244,7 +241,7 @@ inline void port_configure(uint8_t port, size_t nb_rxq, size_t nb_txq,
 
   ret = rte_eth_dev_start(port);
   if (ret < 0) {
-    throw slankdev::exception("rte_eth_dev_start");
+    throw dpdk::exception("rte_eth_dev_start");
   }
 
   /* this function always success because of HARDWARECALL */
@@ -255,30 +252,30 @@ inline void port_configure(uint8_t port, size_t nb_rxq, size_t nb_txq,
 inline void safe_ring_enqueue(rte_ring* ring, void* data)
 {
   int ret = rte_ring_enqueue(ring, data);
-  if (ret < 0) throw slankdev::exception("rte_ring_enqueue: no space in ring");
+  if (ret < 0) throw dpdk::exception("rte_ring_enqueue: no space in ring");
 }
 
 
 inline void safe_ring_dequeue(rte_ring* ring, void** data)
 {
   int ret = rte_ring_dequeue(ring, data);
-  if (ret < 0) throw slankdev::exception("rte_ring_dequeue: no entry in ring");
+  if (ret < 0) throw dpdk::exception("rte_ring_dequeue: no entry in ring");
 }
 
 
 inline void safe_ring_enqueue_bulk(rte_ring* ring, void* const* objs, size_t n)
 {
   int ret = rte_ring_enqueue_bulk(ring, objs, n, nullptr);
-  if (ret != n) throw slankdev::exception("rte_ring_enqueue_bulk: miss");
+  if (ret != n) throw dpdk::exception("rte_ring_enqueue_bulk: miss");
 }
 
 
 inline void safe_ring_dequeue_bulk(rte_ring* ring, void** objs, size_t n)
 {
   int ret = rte_ring_dequeue_bulk(ring, objs, n, nullptr);
-  if (ret < 0) throw slankdev::exception("rte_ring_dequeue_bulk: miss");
+  if (ret < 0) throw dpdk::exception("rte_ring_dequeue_bulk: miss");
 }
 
-} /* namespace slankdev */
+} /* namespace dpdk */
 
 
