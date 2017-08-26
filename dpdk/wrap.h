@@ -2,6 +2,7 @@
 #pragma once
 
 #include <slankdev/string.h>
+#include <slankdev/hexdump.h>
 #include <dpdk/hdr.h>
 #include <dpdk/struct.h>
 
