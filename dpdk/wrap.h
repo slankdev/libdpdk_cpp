@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <slankdev/string.h>
 #include <dpdk/hdr.h>
 #include <dpdk/struct.h>
 
@@ -32,6 +33,62 @@ class exception : public std::exception {
     return str.c_str();
   }
 };
+
+inline void rte_acl_build(struct rte_acl_ctx* acx, struct rte_acl_config* cfg)
+{
+  int ret = ::rte_acl_build(acx, cfg);
+  if (ret < 0) {
+    std::string err = "rte_acl_build: ";
+    switch (ret) {
+      case -ENOMEM:
+        err += slankdev::format("Couldn't allocate enough memory (%d)", ret);
+        break;
+      case -EINVAL:
+        err += slankdev::format("The parameters are invalid (%d)", ret);
+        break;
+      case -ERANGE:
+        cfg->max_size = 0;
+        dpdk::rte_acl_build(acx, cfg);
+        return ;
+        break;
+      default:
+        err += slankdev::format("Other error (%d)", ret);
+        break;
+    }
+    throw dpdk::exception(err.c_str());
+  }
+  return;
+}
+
+
+inline void rte_acl_classify(struct rte_acl_ctx* acx,
+                      const uint8_t**	    data,
+                      uint32_t*           results,
+                      uint32_t            num,
+                      uint32_t            categories)
+{
+  int ret = ::rte_acl_classify(acx, data, results, num , categories);
+  if (ret < 0) {
+    std::string err = "rte_acl_classify: ";
+    switch (ret) {
+      case -EINVAL:
+        err += "Incorrect arguments.";
+        break;
+      default:
+        err += slankdev::format("Other error (%d)", ret);
+        break;
+    }
+    throw dpdk::exception(err.c_str());
+  }
+  return;
+}
+
+inline void hexdump_mbuf(FILE* fp, rte_mbuf* msg)
+{
+  slankdev::hexdump(fp,
+      rte_pktmbuf_mtod(msg, void*),
+      rte_pktmbuf_pkt_len(msg));
+}
 
 
 inline void rte_pktmbuf_free_bulk(struct rte_mbuf* m_list[], size_t npkts)
