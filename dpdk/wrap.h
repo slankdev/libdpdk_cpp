@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <slankdev/string.h>
-#include <slankdev/hexdump.h>
 #include <dpdk/hdr.h>
 #include <dpdk/struct.h>
 
@@ -14,6 +12,48 @@
 #define UNUSED(x) (void)(x)
 
 namespace dpdk {
+
+inline void hexdump(FILE* fp, const void *buffer, size_t bufferlen)
+{
+  const uint8_t *data = reinterpret_cast<const uint8_t*>(buffer);
+  size_t row = 0;
+  while (bufferlen > 0) {
+    fprintf(fp, "%04zx:   ", row);
+
+    size_t n;
+    if (bufferlen < 16) n = bufferlen;
+    else                n = 16;
+
+    for (size_t i = 0; i < n; i++) {
+      if (i == 8) fprintf(fp, " ");
+      fprintf(fp, " %02x", data[i]);
+    }
+    for (size_t i = n; i < 16; i++) {
+      fprintf(fp, "   ");
+    }
+    fprintf(fp, "   ");
+    for (size_t i = 0; i < n; i++) {
+      if (i == 8) fprintf(fp, "  ");
+      uint8_t c = data[i];
+      if (!(0x20 <= c && c <= 0x7e)) c = '.';
+      fprintf(fp, "%c", c);
+    }
+    fprintf(fp, "\n");
+    bufferlen -= n;
+    data += n;
+    row  += n;
+  }
+}
+
+inline std::string format(const char* fmt, ...)
+{
+  char str[1000];
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+  return str;
+}
 
 class exception : public std::exception {
  private:
@@ -65,10 +105,10 @@ inline void rte_acl_build(struct rte_acl_ctx* acx, struct rte_acl_config* cfg)
     std::string err = "rte_acl_build: ";
     switch (ret) {
       case -ENOMEM:
-        err += slankdev::format("Couldn't allocate enough memory (%d)", ret);
+        err += format("Couldn't allocate enough memory (%d)", ret);
         break;
       case -EINVAL:
-        err += slankdev::format("The parameters are invalid (%d)", ret);
+        err += format("The parameters are invalid (%d)", ret);
         break;
       case -ERANGE:
         cfg->max_size = 0;
@@ -76,7 +116,7 @@ inline void rte_acl_build(struct rte_acl_ctx* acx, struct rte_acl_config* cfg)
         return ;
         break;
       default:
-        err += slankdev::format("Other error (%d)", ret);
+        err += format("Other error (%d)", ret);
         break;
     }
     throw dpdk::exception(err.c_str());
@@ -99,7 +139,7 @@ inline void rte_acl_classify(struct rte_acl_ctx* acx,
         err += "Incorrect arguments.";
         break;
       default:
-        err += slankdev::format("Other error (%d)", ret);
+        err += format("Other error (%d)", ret);
         break;
     }
     throw dpdk::exception(err.c_str());
@@ -109,7 +149,7 @@ inline void rte_acl_classify(struct rte_acl_ctx* acx,
 
 inline void hexdump_mbuf(FILE* fp, rte_mbuf* msg)
 {
-  slankdev::hexdump(fp,
+  hexdump(fp,
       rte_pktmbuf_mtod(msg, void*),
       rte_pktmbuf_pkt_len(msg));
 }
