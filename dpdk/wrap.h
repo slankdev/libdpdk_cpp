@@ -35,6 +35,29 @@ class exception : public std::exception {
   }
 };
 
+inline void rte_eal_remote_launch(lcore_function_t f, void* arg, size_t lcore_id)
+{
+  size_t n_lcores = rte_lcore_count();
+  if (n_lcores <= lcore_id) {
+    throw exception("rte_eal_remote_launch: too huge lcore_id?");
+  }
+
+  int ret = rte_eal_remote_launch(_fthread_launcher, snt[lcore_id], lcore_id);
+  if (ret != 0) {
+    std::string err = "rte_eal_remote_launch: ";
+    switch (ret) {
+      case -EBUSY:
+        err += "the remote lcore is not in a WAIT state.";
+        throw slankdev::exception(err.c_str());
+        break;
+      default:
+        err += "unknow error";
+        throw slankdev::exception(err.c_str());
+        break;
+    }
+  }
+}
+
 inline void rte_acl_build(struct rte_acl_ctx* acx, struct rte_acl_config* cfg)
 {
   int ret = ::rte_acl_build(acx, cfg);
