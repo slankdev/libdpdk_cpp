@@ -205,6 +205,43 @@ inline void dpdk_boot(int argc, char** argv)
   if (ret < 0) {
     std::string e = "rte_eal_init: ";
     e += rte_strerror(rte_errno);
+    e += " (";
+    switch (rte_errno) {
+      case EAGAIN:
+        e+="indicates either a bus or system resource was not available, setup may be attempted again.";
+        break;
+      case EALREADY:
+        e+="indicates that the rte_eal_init function has already been called, and cannot be called again.";
+        break;
+      case EFAULT:
+        e+="indicates the tailq configuration name was not found in memory configuration.";
+        break;
+      case EINVAL:
+        e+="indicates invalid parameters were passed as argv/argc.";
+        break;
+      case ENOMEM:
+        e+="indicates failure likely caused by an out-of-memory condition.";
+        break;
+      case ENODEV:
+        e+="indicates memory setup issues.";
+        break;
+      case ENOTSUP:
+        e+="indicates that the EAL cannot initialize on this system.";
+        break;
+      case EPROTO:
+        e+="indicates that the PCI bus is either not present, or is not readable by the eal.";
+        break;
+      case ENOEXEC:
+        e+="indicates that a service core failed to launch successfully.";
+        break;
+      case EACCES:
+        e+="indicates a permissions issue";
+        break;
+      default:
+        e += "UNKNOWN ";
+        break;
+    };
+    e += ")";
     throw dpdk::exception(e.c_str());
   }
 }
