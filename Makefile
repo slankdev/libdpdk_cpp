@@ -8,6 +8,9 @@ MAKEFLAGS += --no-print-directory
 all:
 	@echo testing...OK
 
+doc:
+	@$(MAKE) -C docs
+
 install:
 	@echo install to $(INSTALL_PATH)...
 	@cp -rf dpdk $(INSTALL_PATH)
