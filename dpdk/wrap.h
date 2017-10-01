@@ -84,7 +84,7 @@ inline void rte_eal_remote_launch(lcore_function_t f, void* arg, size_t lcore_id
 
   int ret = ::rte_eal_remote_launch(f, arg, lcore_id);
   if (ret != 0) {
-    std::string err = slankdev::format("rte_eal_remote_launch(%p,%p,%zd): ",f,arg,lcore_id);
+    std::string err = format("rte_eal_remote_launch(%p,%p,%zd): ",f,arg,lcore_id);
     switch (ret) {
       case -EBUSY:
         err += "the remote lcore is not in a WAIT state.";
