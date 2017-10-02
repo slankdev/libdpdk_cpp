@@ -2,14 +2,15 @@
 #include <stdio.h>
 #include <dpdk/dpdk.h>
 
-constexpr size_t nb_queues = 4;
+constexpr size_t nb_rxqueues = 4;
+constexpr size_t nb_txqueues = 4;
 
 int packet_capture(void*)
 {
   const size_t nb_ports = rte_eth_dev_count();
   while (true) {
     for (size_t pid=0; pid<nb_ports; pid++) {
-      for (size_t qid=0; qid<nb_queues; qid++) {
+      for (size_t qid=0; qid<nb_rxqueues; qid++) {
         constexpr size_t BURSTSZ = 32;
         rte_mbuf* mbufs[BURSTSZ];
 
@@ -44,7 +45,7 @@ int main(int argc, char** argv)
   port_conf.rx_adv_conf.rss_conf.rss_hf = ETH_RSS_IP|ETH_RSS_TCP|ETH_RSS_UDP;
   printf("%zd ports found \n", nb_ports);
   for (size_t i=0; i<nb_ports; i++) {
-    dpdk::port_configure(i, nb_queues, nb_queues, &port_conf, mp);
+    dpdk::port_configure(i, nb_rxqueues, nb_txqueues, &port_conf, mp);
   }
 
   rte_eal_remote_launch(packet_capture, nullptr, 1);
