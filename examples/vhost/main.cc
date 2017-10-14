@@ -20,17 +20,20 @@ int packet_capture(void*)
         size_t nb_recv = rte_eth_rx_burst(pid, qid, mbufs, BURSTSZ);
         if (nb_recv == 0) continue;
 
+#if 1
+        rte_eth_tx_burst(pid, qid, mbufs, nb_recv);
+#else
         for (size_t i=0; i<nb_recv; i++) {
           printf("length=%u port=%zd queue=%zd rss_hash=0x%08x\n",
               rte_pktmbuf_pkt_len(mbufs[i]), pid, qid, mbufs[i]->hash.rss);
           dpdk::hexdump_mbuf(stdout, mbufs[i]);
           printf("\n");
-
           rte_pktmbuf_free(mbufs[i]);
         }
+#endif
       }
     }
-  } // while (true)
+  } /* while (true) */
 }
 
 int main(int argc, char** argv)
