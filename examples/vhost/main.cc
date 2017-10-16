@@ -5,8 +5,9 @@
 #include <slankdev/exception.h>
 using slankdev::exception;
 using slankdev::format;
-constexpr size_t nb_rxqueues = 2;
-constexpr size_t nb_txqueues = 2;
+constexpr size_t nq = 1;
+constexpr size_t nb_rxqueues = nq;
+constexpr size_t nb_txqueues = nq;
 
 int packet_capture(void*)
 {
@@ -40,6 +41,7 @@ int main(int argc, char** argv)
 {
   dpdk::dpdk_boot(argc, argv);
   size_t n_port = rte_eth_dev_count();
+  printf("%zd ports found \n", n_port);
   if (n_port != 1)
     throw exception(format("n_port isn't 1(%zd)", n_port));
 
@@ -49,7 +51,6 @@ int main(int argc, char** argv)
   port_conf.rxmode.mq_mode = ETH_MQ_RX_RSS;
   port_conf.rx_adv_conf.rss_conf.rss_key = NULL;
   port_conf.rx_adv_conf.rss_conf.rss_hf = ETH_RSS_IP|ETH_RSS_TCP|ETH_RSS_UDP;
-  printf("%zd ports found \n", n_port);
   for (size_t i=0; i<n_port; i++) {
     dpdk::port_configure(i, nb_rxqueues, nb_txqueues, &port_conf, mp);
   }

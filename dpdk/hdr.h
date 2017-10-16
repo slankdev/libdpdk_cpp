@@ -60,5 +60,4 @@
 #include <rte_timer.h>
 #include <rte_flow.h>
 #include <rte_acl.h>
-
-
+#include <rte_log.h>

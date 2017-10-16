@@ -7,6 +7,8 @@ SOCKPATH=/tmp/sock0
 # HPPATH=???
 HPPATH=/mnt/huge_kvm
 
+N_VHOST_QUEUES=1
+
 
 # $QEMU \
 numactl --physcpubind=4-7 $QEMU \
@@ -23,7 +25,15 @@ numactl --physcpubind=4-7 $QEMU \
 	-net nic,model=virtio,macaddr=52:54:00:11:11:11 \
 	-net tap,script=/etc/qemu-ifup \
 	\
-	-chardev socket,id=chr0,path=$SOCKPATH \
-	-netdev vhost-user,id=net0,chardev=chr0,vhostforce,queues=2 \
-	-device virtio-net-pci,netdev=net0
+	-chardev socket,id=char1,path=$SOCKPATH \
+	-netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=$N_VHOST_QUEUES \
+	-device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1
 
+	# -chardev socket,id=char1,path=$SOCKPATH \
+	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
+	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mrg_rxbuf=off
+	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=6
+
+	# -chardev socket,id=char1,path=$SOCKPATH \
+	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
+	# -device virtio-net-pci,netdev=net1,mac=02:cd:c6:22:22:22,mrg_rxbuf=off
