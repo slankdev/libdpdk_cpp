@@ -461,6 +461,7 @@ inline void safe_ring_dequeue_bulk(rte_ring* ring, void** objs, size_t n)
   if (ret < 0) throw dpdk::exception("rte_ring_dequeue_bulk: miss");
 }
 
+
 } /* namespace dpdk */
 
 

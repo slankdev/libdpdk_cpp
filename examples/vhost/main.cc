@@ -5,8 +5,8 @@
 #include <slankdev/exception.h>
 using slankdev::exception;
 using slankdev::format;
-constexpr size_t nb_rxqueues = 1;
-constexpr size_t nb_txqueues = 1;
+constexpr size_t nb_rxqueues = 2;
+constexpr size_t nb_txqueues = 2;
 
 int packet_capture(void*)
 {
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     dpdk::port_configure(i, nb_rxqueues, nb_txqueues, &port_conf, mp);
   }
 
-  rte_eal_remote_launch(packet_capture, nullptr, 1);
+  dpdk::rte_eal_remote_launch(packet_capture, nullptr, 2);
   rte_eal_mp_wait_lcore();
 }
 
