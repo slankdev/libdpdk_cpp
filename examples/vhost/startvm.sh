@@ -4,12 +4,12 @@ QEMU=qemu-system-x86_64
 HDAPATH=/var/lib/libvirt/images/vm001.img
 SOCKPATH=/tmp/sock0
 
-HPPATH=???
-# HPPATH=/dev/hugepages
-# HPPATH=/mnt/huge_kvm
-# HPPATH=/dev/hugepages/libvirt/qemu
+# HPPATH=???
+HPPATH=/mnt/huge_kvm
 
-$QEMU \
+COREMASK=0x1e
+
+taskset $COREMASK $QEMU \
 	-enable-kvm -cpu host -smp 4 \
 	-hda $HDAPATH \
 	\
@@ -24,11 +24,3 @@ $QEMU \
 	-netdev vhost-user,id=net0,chardev=chr0,vhostforce,queues=1 \
 	-device virtio-net-pci,netdev=net0
 
-#    <interface type='vhostuser'>
-#      <mac address='52:54:00:2b:e5:d2'/>
-#      <source type='unix' path='/tmp/sock0' mode='client'/>
-#      <model type='virtio'/>
-#      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
-#    </interface>
-#
-#
