@@ -13,5 +13,5 @@ all:
 SOCK=/tmp/sock0
 run:
 	sudo rm -f $(SOCK)
-	sudo ./a.out  --vdev=net_vhost0,iface=$(SOCK),queues=1
+	sudo ./a.out  --vdev=net_vhost0,iface=$(SOCK),queues=2
 

@@ -5,34 +5,37 @@
 #include <slankdev/exception.h>
 using slankdev::exception;
 using slankdev::format;
-constexpr size_t nq = 1;
+constexpr size_t nq = 2;
 constexpr size_t nb_rxqueues = nq;
 constexpr size_t nb_txqueues = nq;
+size_t num[] = {0,1,2,3,4,5};
 
-int packet_capture(void*)
+int packet_capture(void* arg)
 {
+  const size_t qid = *reinterpret_cast<size_t*>(arg);
   const size_t n_port = rte_eth_dev_count();
   while (true) {
     for (size_t pid=0; pid<n_port; pid++) {
-      for (size_t qid=0; qid<nb_rxqueues; qid++) {
+      // for (size_t qid=0; qid<nb_rxqueues; qid++) {
         constexpr size_t BURSTSZ = 32;
         rte_mbuf* mbufs[BURSTSZ];
 
         size_t nb_recv = rte_eth_rx_burst(pid, qid, mbufs, BURSTSZ);
         if (nb_recv == 0) continue;
 
-#if 1
+#if 0
         rte_eth_tx_burst(pid, qid, mbufs, nb_recv);
 #else
         for (size_t i=0; i<nb_recv; i++) {
-          printf("length=%u port=%zd queue=%zd rss_hash=0x%08x\n",
-              rte_pktmbuf_pkt_len(mbufs[i]), pid, qid, mbufs[i]->hash.rss);
-          dpdk::hexdump_mbuf(stdout, mbufs[i]);
-          printf("\n");
-          rte_pktmbuf_free(mbufs[i]);
+
+          constexpr size_t DELAY_N=100;
+          size_t n=0;
+          for (size_t j=0; i<DELAY_N; j++) n++;
+
+          rte_eth_tx_burst(pid, qid, &mbufs[i], 1);
         }
 #endif
-      }
+      // }
     }
   } /* while (true) */
 }
@@ -55,7 +58,9 @@ int main(int argc, char** argv)
     dpdk::port_configure(i, nb_rxqueues, nb_txqueues, &port_conf, mp);
   }
 
-  dpdk::rte_eal_remote_launch(packet_capture, nullptr, 2);
+  dpdk::rte_eal_remote_launch(packet_capture, &num[0], 1);
+  dpdk::rte_eal_remote_launch(packet_capture, &num[1], 2);
+  // dpdk::rte_eal_remote_launch(packet_capture, &num[2], 3);
   rte_eal_mp_wait_lcore();
 }
 

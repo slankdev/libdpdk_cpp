@@ -24,11 +24,11 @@ numactl --physcpubind=4-7 $QEMU \
 	-net tap,script=/etc/qemu-ifup \
 	\
 	-chardev socket,id=char1,path=$SOCKPATH \
-	-netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
-	-device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1
+	-netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=2 \
+	-device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=6
 
-	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=2 \
-	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=6
+	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
+	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1
 
 	# -chardev socket,id=char1,path=$SOCKPATH \
 	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
