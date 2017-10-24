@@ -3,12 +3,9 @@
 QEMU=qemu-system-x86_64
 HDAPATH=/home/slank/qemu/u1604.qcow2
 SOCKPATH=/tmp/sock0
-
-# HPPATH=???
 HPPATH=/mnt/huge_kvm
 
 
-# $QEMU \
 numactl --physcpubind=4-7 $QEMU \
 	-enable-kvm -cpu host -smp 4 \
 	-hda $HDAPATH \
@@ -24,16 +21,16 @@ numactl --physcpubind=4-7 $QEMU \
 	-net tap,script=/etc/qemu-ifup \
 	\
 	-chardev socket,id=char1,path=$SOCKPATH \
-	-netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=2 \
-	-device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=6
+	-netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
+	-device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mrg_rxbuf=off
 
-	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
+	# -netdev  type=vhost-user,id=net1,chardev=char1,vhostforce,queues=2 \
+	# -device  virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=6
 	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1
 
 	# -chardev socket,id=char1,path=$SOCKPATH \
 	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \
-	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mrg_rxbuf=off
-	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=6
+	# -device virtio-net-pci,mac=02:cd:c6:a0:01:01,netdev=net1,mq=on,vectors=4
 
 	# -chardev socket,id=char1,path=$SOCKPATH \
 	# -netdev type=vhost-user,id=net1,chardev=char1,vhostforce,queues=1 \

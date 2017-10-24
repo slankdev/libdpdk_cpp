@@ -461,6 +461,57 @@ inline void safe_ring_dequeue_bulk(rte_ring* ring, void** objs, size_t n)
   if (ret < 0) throw dpdk::exception("rte_ring_dequeue_bulk: miss");
 }
 
+inline void
+check_all_ports_link_status(uint8_t port_num, uint32_t port_mask, size_t to_sec)
+{
+  constexpr size_t CHECK_INTERVAL = 100; /* 100ms */
+  const size_t MAX_CHECK_TIME = 10 * ((to_sec==0)?10000000:to_sec); /* 9s (90 * 100ms) in total */
+	uint8_t portid, count, all_ports_up, print_flag = 0;
+	struct rte_eth_link link;
+
+	printf("\nChecking link status..  ");
+	fflush(stdout);
+	for (count = 0; count <= MAX_CHECK_TIME; count++) {
+		all_ports_up = 1;
+		for (portid = 0; portid < port_num; portid++) {
+			if ((port_mask & (1 << portid)) == 0)
+				continue;
+			memset(&link, 0, sizeof(link));
+			rte_eth_link_get_nowait(portid, &link);
+			if (print_flag == 1) {
+				if (link.link_status)
+					printf("Port %d Link Up - speed %u "
+						"Mbps - %s\n", (uint8_t)portid,
+						(unsigned)link.link_speed,
+				(link.link_duplex == ETH_LINK_FULL_DUPLEX) ?
+					("full-duplex") : ("half-duplex\n"));
+				else
+					printf("Port %d Link Down\n",
+						(uint8_t)portid);
+				continue;
+			}
+			if (link.link_status == ETH_LINK_DOWN) {
+				all_ports_up = 0;
+				break;
+			}
+		}
+		if (print_flag == 1) break;
+
+		if (all_ports_up == 0) {
+      static size_t pivot = 0;
+      const char str[4] = {'-', '/', '|', '\\'};
+      pivot = (pivot + 1) % 4;
+      printf("\b%c", str[pivot]);
+			fflush(stdout);
+			rte_delay_ms(CHECK_INTERVAL);
+		}
+
+		if (all_ports_up == 1 || count == (MAX_CHECK_TIME - 1)) {
+			print_flag = 1;
+			printf("done\n");
+		}
+	}
+}
 
 } /* namespace dpdk */
 

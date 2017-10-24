@@ -1,66 +1,65 @@
 
+
 #include <stdio.h>
-#include <dpdk/dpdk.h>
+#include <dpdk/wrap.h>
 #include <slankdev/string.h>
 #include <slankdev/exception.h>
 using slankdev::exception;
 using slankdev::format;
-constexpr size_t nq = 2;
-constexpr size_t nb_rxqueues = nq;
-constexpr size_t nb_txqueues = nq;
-size_t num[] = {0,1,2,3,4,5};
 
-int packet_capture(void* arg)
+size_t num[] = {0,1,2,3,4,5};
+constexpr size_t n_queues = 1;
+int impl(void* arg)
 {
-  const size_t qid = *reinterpret_cast<size_t*>(arg);
-  const size_t n_port = rte_eth_dev_count();
+  printf("running thread on lcore%u \n", rte_lcore_id());
+  const size_t n_ports = rte_eth_dev_count();
   while (true) {
-    for (size_t pid=0; pid<n_port; pid++) {
-      // for (size_t qid=0; qid<nb_rxqueues; qid++) {
+    for (size_t pid=0; pid<n_ports; pid++) {
+			for (size_t qid=0; qid<n_queues; qid++) {
         constexpr size_t BURSTSZ = 32;
         rte_mbuf* mbufs[BURSTSZ];
-
         size_t nb_recv = rte_eth_rx_burst(pid, qid, mbufs, BURSTSZ);
         if (nb_recv == 0) continue;
-
-#if 0
         rte_eth_tx_burst(pid, qid, mbufs, nb_recv);
-#else
-        for (size_t i=0; i<nb_recv; i++) {
-
-          constexpr size_t DELAY_N=100;
-          size_t n=0;
-          for (size_t j=0; i<DELAY_N; j++) n++;
-
-          rte_eth_tx_burst(pid, qid, &mbufs[i], 1);
-        }
-#endif
-      // }
+			}
     }
-  } /* while (true) */
+  }
 }
 
 int main(int argc, char** argv)
 {
   dpdk::dpdk_boot(argc, argv);
-  size_t n_port = rte_eth_dev_count();
-  printf("%zd ports found \n", n_port);
-  if (n_port != 1)
-    throw exception(format("n_port isn't 1(%zd)", n_port));
 
-  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP");
   struct rte_eth_conf port_conf;
   dpdk::init_portconf(&port_conf);
-  port_conf.rxmode.mq_mode = ETH_MQ_RX_RSS;
-  port_conf.rx_adv_conf.rss_conf.rss_key = NULL;
-  port_conf.rx_adv_conf.rss_conf.rss_hf = ETH_RSS_IP|ETH_RSS_TCP|ETH_RSS_UDP;
-  for (size_t i=0; i<n_port; i++) {
-    dpdk::port_configure(i, nb_rxqueues, nb_txqueues, &port_conf, mp);
+  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP");
+
+  size_t n_ports = rte_eth_dev_count();
+  printf("%zd ports found\n", n_ports);
+  for (size_t i=0; i<n_ports; i++) {
+    const size_t n_rxq = n_queues;
+    const size_t n_txq = n_queues;
+    dpdk::port_configure(i, n_rxq, n_txq, &port_conf, mp);
   }
 
-  dpdk::rte_eal_remote_launch(packet_capture, &num[0], 1);
-  dpdk::rte_eal_remote_launch(packet_capture, &num[1], 2);
-  // dpdk::rte_eal_remote_launch(packet_capture, &num[2], 3);
+  /* init vhostuser port */
+  std::string devargs = format(
+      "net_vhost0,iface=/tmp/sock0,queues=%zd", n_queues);
+  uint8_t vhost_pid;
+  int ret = rte_eth_dev_attach(devargs.c_str(), &vhost_pid);
+  if (ret < 0) {
+    throw dpdk::exception("rte_eth_dev_attach");
+  }
+  printf("vhost_pid: %u\n", vhost_pid);
+  dpdk::port_configure(vhost_pid, n_queues, n_queues, &port_conf, mp);
+
+  printf("configure done n_queue=%zd \n", n_queues);
+  n_ports = rte_eth_dev_count();
+  dpdk::check_all_ports_link_status(n_ports, 0b11, 5);
+  printf("\n");
+
+  rte_eal_remote_launch(impl, &num[0], 2);
   rte_eal_mp_wait_lcore();
 }
+
 
