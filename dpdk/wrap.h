@@ -513,7 +513,7 @@ check_all_ports_link_status(uint8_t port_num, uint32_t port_mask, size_t to_sec)
 	}
 }
 
-size_t eth_dev_attach(const char* devargs)
+inline size_t eth_dev_attach(const char* devargs)
 {
   uint8_t new_pid;
   int ret = rte_eth_dev_attach(devargs, &new_pid);
@@ -524,7 +524,7 @@ size_t eth_dev_attach(const char* devargs)
   return new_pid;
 }
 
-void eth_dev_detach(size_t port_id)
+inline void eth_dev_detach(size_t port_id)
 {
   rte_eth_dev_stop(port_id);
   rte_eth_dev_close(port_id);
