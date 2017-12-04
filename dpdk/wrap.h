@@ -282,7 +282,7 @@ inline void set_mbuf_raw(rte_mbuf* mbuf, const void* data, size_t len)
   memcpy(p, data, len);
 }
 
-inline rte_mempool* mp_alloc(const char* name)
+inline rte_mempool* mp_alloc(const char* name, size_t socket_id)
 {
   constexpr size_t NUM_MBUFS       = 8191;
   constexpr size_t MBUF_CACHE_SIZE = 0;
@@ -294,7 +294,7 @@ inline rte_mempool* mp_alloc(const char* name)
       MBUF_CACHE_SIZE,
       0,
       RTE_MBUF_DEFAULT_BUF_SIZE,
-      rte_socket_id());
+      socket_id);
   if (!mp) {
     std::string e = "rte_pktmbuf_pool_create: ";
     e += rte_strerror(rte_errno);
