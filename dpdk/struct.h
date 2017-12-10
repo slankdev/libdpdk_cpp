@@ -629,27 +629,27 @@ inline void print(const struct rte_eth_txconf* raw, const char* name="", size_t 
 
 
 
-inline void print(const struct rte_pci_addr* raw, const char* name="", size_t depth=0)
-{
-  printf_depth(depth, "%s : %04x:%02x:%02x.%02x\n", name,
-      raw->domain, raw->bus, raw->devid, raw->function);
-}
+// inline void print(const struct rte_pci_addr* raw, const char* name="", size_t depth=0)
+// {
+//   printf_depth(depth, "%s : %04x:%02x:%02x.%02x\n", name,
+//       raw->domain, raw->bus, raw->devid, raw->function);
+// }
 
 
-inline void print(const struct rte_pci_id* raw, const char* name="", size_t depth=0)
-{
-  printf_depth(depth, "rte_pci_id %s {\n", name);
-
-  depth++;
-  printf_depth(depth, "class_id            : %u \n", raw->class_id           );
-  printf_depth(depth, "vendor_id           : %u \n", raw->vendor_id          );
-  printf_depth(depth, "device_id           : %u \n", raw->device_id          );
-  printf_depth(depth, "subsystem_vendor_id : %u \n", raw->subsystem_vendor_id);
-  printf_depth(depth, "subsystem_device_id : %u \n", raw->subsystem_device_id);
-  depth--;
-
-  printf_depth(depth, "}\n");
-}
+// inline void print(const struct rte_pci_id* raw, const char* name="", size_t depth=0)
+// {
+//   printf_depth(depth, "rte_pci_id %s {\n", name);
+//
+//   depth++;
+//   printf_depth(depth, "class_id            : %u \n", raw->class_id           );
+//   printf_depth(depth, "vendor_id           : %u \n", raw->vendor_id          );
+//   printf_depth(depth, "device_id           : %u \n", raw->device_id          );
+//   printf_depth(depth, "subsystem_vendor_id : %u \n", raw->subsystem_vendor_id);
+//   printf_depth(depth, "subsystem_device_id : %u \n", raw->subsystem_device_id);
+//   depth--;
+//
+//   printf_depth(depth, "}\n");
+// }
 
 
 // inline void print(const struct rte_pci_resource* raw, const char* name="", size_t depth=0)

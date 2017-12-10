@@ -61,3 +61,7 @@
 #include <rte_flow.h>
 #include <rte_acl.h>
 #include <rte_log.h>
+#include <rte_pci.h>
+
+
+
