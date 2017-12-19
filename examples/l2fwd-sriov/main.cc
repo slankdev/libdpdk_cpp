@@ -27,15 +27,16 @@ int l2fwd(void*)
 				size_t nb_recv = rte_eth_rx_burst(pid, qid, mbufs, BURSTSZ);
 				if (nb_recv == 0) continue;
 
-        printf("recvfrom p%zd: ", pid);
         for (size_t i=0; i<nb_recv; i++) {
           uint8_t* p = rte_pktmbuf_mtod(mbufs[i], uint8_t*);
           memcpy(p+0, &next_dst[pid], 6);
           memcpy(p+6, &next_src[pid], 6);
         }
-        printf(" src=%s dst=%s\n",
+#if 0
+        printf("recvfrom p%zd src=%s dst=%s\n", pid,
             to_str(&next_src[pid]).c_str(),
             to_str(&next_dst[pid]).c_str());
+#endif
         rte_eth_tx_burst(pid^1, qid, mbufs, nb_recv);
 			}
     }
