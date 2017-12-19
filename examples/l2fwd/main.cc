@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <dpdk/wrap.h>
 
-constexpr size_t n_queues = 4;
+constexpr size_t n_queues = 1;
 int l2fwd(void*)
 {
   const size_t n_ports = rte_eth_dev_count();
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   dpdk::dpdk_boot(argc, argv);
   struct rte_eth_conf port_conf;
   dpdk::init_portconf(&port_conf);
-  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP");
+  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP", 0, 8192);
 
   size_t n_ports = rte_eth_dev_count();
   if (n_ports == 0) throw dpdk::exception("no ethdev");
