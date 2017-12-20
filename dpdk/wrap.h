@@ -298,7 +298,6 @@ inline void set_mbuf_raw(rte_mbuf* mbuf, const void* data, size_t len)
   memcpy(p, data, len);
 }
 
-#if 1
 inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
 {
   constexpr size_t MBUF_CACHE_SIZE = 0;
@@ -318,28 +317,15 @@ inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
   }
   return mp;
 }
-#else
-inline rte_mempool* mp_alloc(const char* name, size_t socket_id) //TODO: to delete
-{
-  constexpr size_t NUM_MBUFS       = 8191;
-  constexpr size_t MBUF_CACHE_SIZE = 0;
-  size_t nb_ports = rte_eth_dev_count();
 
-	struct rte_mempool* mp = rte_pktmbuf_pool_create(
-      name,
-      NUM_MBUFS * (nb_ports!=0?nb_ports:1),
-      MBUF_CACHE_SIZE,
-      0,
-      RTE_MBUF_DEFAULT_BUF_SIZE,
-      socket_id);
-  if (!mp) {
-    std::string e = "rte_pktmbuf_pool_create: ";
-    e += rte_strerror(rte_errno);
-    throw dpdk::exception(e.c_str());
-  }
-  return mp;
+inline void mp_dump(const rte_mempool* mp)
+{
+  printf("name : %s  \n", mp->name);
+  printf("size : %u  \n", mp->size);
+  printf("use/avail: %u/%u  \n",
+      rte_mempool_in_use_count(mp),
+      rte_mempool_avail_count(mp));
 }
-#endif
 
 inline rte_ring* ring_alloc(const char* name, size_t sizeofring)
 {

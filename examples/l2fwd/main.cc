@@ -1,8 +1,10 @@
 
 #include <stdio.h>
+#include <unistd.h>
 #include <dpdk/wrap.h>
+#include <thread>
 
-constexpr size_t n_queues = 4;
+constexpr size_t n_queues = 1;
 int l2fwd(void*)
 {
   const size_t n_ports = rte_eth_dev_count();
@@ -20,12 +22,21 @@ int l2fwd(void*)
   }
 }
 
+void debug(const rte_mempool* mp)
+{
+  while (true) {
+    dpdk::mp_dump(mp);
+    printf("-----------\n");
+    sleep(1);
+  }
+}
+
 int main(int argc, char** argv)
 {
   dpdk::dpdk_boot(argc, argv);
   struct rte_eth_conf port_conf;
   dpdk::init_portconf(&port_conf);
-  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP");
+  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP", 0, 8192);
 
   size_t n_ports = rte_eth_dev_count();
   if (n_ports == 0) throw dpdk::exception("no ethdev");
@@ -35,6 +46,8 @@ int main(int argc, char** argv)
   }
 
   rte_eal_remote_launch(l2fwd, nullptr, 1);
+  std::thread t(debug, mp);
   rte_eal_mp_wait_lcore();
+  t.join();
 }
 
