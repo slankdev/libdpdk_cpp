@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <dpdk/dpdk.h>
+#include <thread>
+#include <unistd.h>
 
 struct ether_addr next_dst[2];
 struct ether_addr next_src[2];
@@ -43,6 +45,14 @@ int l2fwd(void*)
   }
 }
 
+void debug(rte_mempool* mp)
+{
+  while (true) {
+    dpdk::mp_dump(mp);
+    sleep(1);
+  }
+}
+
 int main(int argc, char** argv)
 {
 
@@ -78,6 +88,7 @@ int main(int argc, char** argv)
   printf("flow[0->1]: %s -> %s \n", to_str(&next_src[0]).c_str(), to_str(&next_dst[0]).c_str());
   printf("flow[1->0]: %s -> %s \n", to_str(&next_src[1]).c_str(), to_str(&next_dst[1]).c_str());
 
+  std::thread t(debug, mp);
   rte_eal_remote_launch(l2fwd, nullptr, 1);
   rte_eal_mp_wait_lcore();
 }
