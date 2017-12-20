@@ -6,4 +6,6 @@ CXXFLAGS = -I$(LIB) $(DPDK_CXXFLAGS) -std=c++11 -Wno-format-security
 LDFLAGS  = $(DPDK_LDFLAGS)
 
 all:
-	$(CXX) $(CXXFLAGS) main.cc $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(DFLAGS) main.cc $(LDFLAGS)
+
+
