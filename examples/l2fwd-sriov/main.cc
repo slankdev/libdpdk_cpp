@@ -70,11 +70,11 @@ int main(int argc, char** argv)
   rte_eth_macaddr_get(1, &next_src[0]);
 
   printf("flow[0->1]: %s -> %s \n",
-      ether_addr2str(&next_src[0]).c_str(),
-      ether_addr2str(&next_dst[0]).c_str());
+      dpdk::ether_addr2str(&next_src[0]).c_str(),
+      dpdk::ether_addr2str(&next_dst[0]).c_str());
   printf("flow[1->0]: %s -> %s \n",
-      ether_addr2str(&next_src[1]).c_str(),
-      ether_addr2str(&next_dst[1]).c_str());
+      dpdk::ether_addr2str(&next_src[1]).c_str(),
+      dpdk::ether_addr2str(&next_dst[1]).c_str());
 
   rte_eal_remote_launch(l2fwd, nullptr, 1);
   rte_eal_mp_wait_lcore();
