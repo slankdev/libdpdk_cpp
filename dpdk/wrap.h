@@ -298,7 +298,6 @@ inline void set_mbuf_raw(rte_mbuf* mbuf, const void* data, size_t len)
   memcpy(p, data, len);
 }
 
-#if 1
 inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
 {
   constexpr size_t MBUF_CACHE_SIZE = 0;
@@ -318,28 +317,15 @@ inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
   }
   return mp;
 }
-#else
-inline rte_mempool* mp_alloc(const char* name, size_t socket_id) //TODO: to delete
-{
-  constexpr size_t NUM_MBUFS       = 8191;
-  constexpr size_t MBUF_CACHE_SIZE = 0;
-  size_t nb_ports = rte_eth_dev_count();
 
-	struct rte_mempool* mp = rte_pktmbuf_pool_create(
-      name,
-      NUM_MBUFS * (nb_ports!=0?nb_ports:1),
-      MBUF_CACHE_SIZE,
-      0,
-      RTE_MBUF_DEFAULT_BUF_SIZE,
-      socket_id);
-  if (!mp) {
-    std::string e = "rte_pktmbuf_pool_create: ";
-    e += rte_strerror(rte_errno);
-    throw dpdk::exception(e.c_str());
-  }
-  return mp;
+inline void mp_dump(const rte_mempool* mp)
+{
+  printf("name : %s  \n", mp->name);
+  printf("size : %u  \n", mp->size);
+  printf("use/avail: %u/%u  \n",
+      rte_mempool_in_use_count(mp),
+      rte_mempool_avail_count(mp));
 }
-#endif
 
 inline rte_ring* ring_alloc(const char* name, size_t sizeofring)
 {
@@ -575,6 +561,28 @@ inline void eth_dev_detach(size_t port_id)
   RTE_LOG(INFO, USER1, "Ethernet device \'%s\' was detached by ssn_nfvi\n", devname);
 }
 
+inline std::string ether_addr2str(const ether_addr* addr)
+{
+  std::string s;
+  for (size_t i=0; i<6; i++) {
+    s += dpdk::format("%02x%s", addr->addr_bytes[i], i<5?":":"");
+  }
+  return s;
+}
+
+inline void rte_eth_macaddr_set(const char* str, ether_addr* addr)
+{
+  uint32_t buf[6];
+  int ret = sscanf(str, "%02x:%02x:%02x:%02x:%02x:%02x",
+      &buf[0], &buf[1], &buf[2], &buf[3], &buf[4], &buf[5]);
+  if (ret != 6) {
+    std::string err = format("dpdk::ether_addr_set: retval was not 6 (%d)", ret);
+    throw exception(err.c_str());
+  }
+  for (size_t i=0; i<6; i++) {
+    addr->addr_bytes[i] = buf[i];
+  }
+}
 
 } /* namespace dpdk */
 

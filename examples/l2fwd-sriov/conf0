@@ -1,0 +1,19 @@
+
+VM0
+  next_dst[0].addr_bytes[0] = 0x52;
+  next_dst[0].addr_bytes[1] = 0x54;
+  next_dst[0].addr_bytes[2] = 0x00;
+  next_dst[0].addr_bytes[3] = 0x33;
+  next_dst[0].addr_bytes[4] = 0x33;
+  next_dst[0].addr_bytes[5] = 0x33;
+
+  next_dst[1].addr_bytes[0] = 0xa0;
+  next_dst[1].addr_bytes[1] = 0x36;
+  next_dst[1].addr_bytes[2] = 0x9f;
+  next_dst[1].addr_bytes[3] = 0x39;
+  next_dst[1].addr_bytes[4] = 0x10;
+  next_dst[1].addr_bytes[5] = 0x4c;
+
+VM1
+
+VM2
