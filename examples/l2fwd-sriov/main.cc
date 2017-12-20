@@ -52,20 +52,8 @@ int main(int argc, char** argv)
     dpdk::port_configure(i, n_queues, n_queues, &port_conf, mp);
   }
 
-  next_dst[0].addr_bytes[0] = 0x52;
-  next_dst[0].addr_bytes[1] = 0x54;
-  next_dst[0].addr_bytes[2] = 0x00;
-  next_dst[0].addr_bytes[3] = 0x33;
-  next_dst[0].addr_bytes[4] = 0x33;
-  next_dst[0].addr_bytes[5] = 0x33;
-
-  next_dst[1].addr_bytes[0] = 0xa0;
-  next_dst[1].addr_bytes[1] = 0x36;
-  next_dst[1].addr_bytes[2] = 0x9f;
-  next_dst[1].addr_bytes[3] = 0x39;
-  next_dst[1].addr_bytes[4] = 0x10;
-  next_dst[1].addr_bytes[5] = 0x4c;
-
+  dpdk::rte_eth_macaddr_set("52:54:00:33:33:33", &next_dst[0]);
+  dpdk::rte_eth_macaddr_set("a0:36:9f:39:10:4c", &next_dst[1]);
   rte_eth_macaddr_get(0, &next_src[1]);
   rte_eth_macaddr_get(1, &next_src[0]);
 

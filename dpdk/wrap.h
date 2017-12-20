@@ -570,6 +570,20 @@ inline std::string ether_addr2str(const ether_addr* addr)
   return s;
 }
 
+inline void rte_eth_macaddr_set(const char* str, ether_addr* addr)
+{
+  uint32_t buf[6];
+  int ret = sscanf(str, "%02x:%02x:%02x:%02x:%02x:%02x",
+      &buf[0], &buf[1], &buf[2], &buf[3], &buf[4], &buf[5]);
+  if (ret != 6) {
+    std::string err = format("dpdk::ether_addr_set: retval was not 6 (%d)", ret);
+    throw exception(err.c_str());
+  }
+  for (size_t i=0; i<6; i++) {
+    addr->addr_bytes[i] = buf[i];
+  }
+}
+
 } /* namespace dpdk */
 
 
