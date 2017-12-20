@@ -66,13 +66,21 @@ int main(int argc, char** argv)
   dpdk::rte_eth_macaddr_set("52:54:00:33:33:33", &next_dst[0]);
   dpdk::rte_eth_macaddr_set("a0:36:9f:39:10:4c", &next_dst[1]);
 
-  // #<{(| sriov-vm1 |)}>#
-  // dpdk::rte_eth_macaddr_set("52:54:00:55:55:55", &next_dst[0]);
-  // dpdk::rte_eth_macaddr_set("52:54:00:22:22:22", &next_dst[1]);
+  /* sriov-vm1 */
+  dpdk::rte_eth_macaddr_set("52:54:00:55:55:55", &next_dst[0]);
+  dpdk::rte_eth_macaddr_set("52:54:00:22:22:22", &next_dst[1]);
 
-  // #<{(| sriov-vm2 |)}>#
-  // dpdk::rte_eth_macaddr_set("a0:36:9f:39:1c:48", &next_dst[0]);
-  // dpdk::rte_eth_macaddr_set("52:54:00:44:44:44", &next_dst[1]);
+  /* sriov-vm2 */
+  dpdk::rte_eth_macaddr_set("52:54:00:77:77:77", &next_dst[0]);
+  dpdk::rte_eth_macaddr_set("52:54:00:44:44:44", &next_dst[1]);
+
+  /* sriov-vm3 */
+  dpdk::rte_eth_macaddr_set("52:54:00:99:99:99", &next_dst[0]);
+  dpdk::rte_eth_macaddr_set("52:54:00:66:66:66", &next_dst[1]);
+
+  /* sriov-vm4 */
+  dpdk::rte_eth_macaddr_set("a0:36:9f:39:1c:48", &next_dst[0]);
+  dpdk::rte_eth_macaddr_set("52:54:00:88:88:88", &next_dst[1]);
 
   rte_eth_macaddr_get(0, &next_src[1]);
   rte_eth_macaddr_get(1, &next_src[0]);
