@@ -1,6 +1,8 @@
 
 #include <stdio.h>
+#include <unistd.h>
 #include <dpdk/wrap.h>
+#include <thread>
 
 constexpr size_t n_queues = 1;
 int l2fwd(void*)
@@ -20,6 +22,15 @@ int l2fwd(void*)
   }
 }
 
+void debug(const rte_mempool* mp)
+{
+  while (true) {
+    dpdk::mp_dump(mp);
+    printf("-----------\n");
+    sleep(1);
+  }
+}
+
 int main(int argc, char** argv)
 {
   dpdk::dpdk_boot(argc, argv);
@@ -35,6 +46,8 @@ int main(int argc, char** argv)
   }
 
   rte_eal_remote_launch(l2fwd, nullptr, 1);
+  std::thread t(debug, mp);
   rte_eal_mp_wait_lcore();
+  t.join();
 }
 
