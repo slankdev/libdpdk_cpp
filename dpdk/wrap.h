@@ -104,9 +104,25 @@ class exception : public std::exception {
 
 inline void rte_eal_remote_launch(lcore_function_t f, void* arg, size_t lcore_id)
 {
-  size_t n_lcores = rte_lcore_count();
-  if (n_lcores <= lcore_id) {
-    throw exception("rte_eal_remote_launch: too huge lcore_id?");
+  /*
+   * Check lcore_id is enabled
+   * If that is disabled, throwing exception.
+   */
+  if (!rte_lcore_is_enabled(lcore_id)) {
+    std::string e;
+    e = format("rte_eal_remote_launch: lcore%zd is disabled", lcore_id);
+    throw exception(e.c_str());
+  }
+
+  /*
+   * Check lcore_id isn't master_core
+   * If lcore_id is master core, function f will not be launched.
+   * so, This function throw exception when lcore_id is master_lcore_id.
+   */
+  if (lcore_id == rte_get_master_lcore()) {
+    std::string e;
+    e = format("rte_eal_remote_launch: lcore%zd is master-lcore-id", lcore_id);
+    throw exception(e.c_str());
   }
 
   int ret = ::rte_eal_remote_launch(f, arg, lcore_id);
