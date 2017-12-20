@@ -7,15 +7,6 @@
 struct ether_addr next_dst[2];
 struct ether_addr next_src[2];
 
-std::string to_str(const ether_addr* addr)
-{
-  std::string s;
-  for (size_t i=0; i<6; i++) {
-    s += dpdk::format("%02x%s", addr->addr_bytes[i], i<5?":":"");
-  }
-  return s;
-}
-
 constexpr size_t n_queues = 4;
 int l2fwd(void*)
 {
@@ -34,12 +25,15 @@ int l2fwd(void*)
           memcpy(p+0, &next_dst[pid], 6);
           memcpy(p+6, &next_src[pid], 6);
         }
-#if 0
+#if 1
         printf("recvfrom p%zd src=%s dst=%s\n", pid,
-            to_str(&next_src[pid]).c_str(),
-            to_str(&next_dst[pid]).c_str());
+            dpdk::ether_addr2str(&next_src[pid]).c_str(),
+            dpdk::ether_addr2str(&next_dst[pid]).c_str());
 #endif
-        rte_eth_tx_burst(pid^1, qid, mbufs, nb_recv);
+        size_t nb_send = rte_eth_tx_burst(pid^1, qid, mbufs, nb_recv);
+        if (nb_send < nb_recv) {
+          dpdk::rte_pktmbuf_free_bulk(&mbufs[nb_send], nb_recv-nb_send);
+        }
 			}
     }
   }
@@ -85,8 +79,12 @@ int main(int argc, char** argv)
   rte_eth_macaddr_get(0, &next_src[1]);
   rte_eth_macaddr_get(1, &next_src[0]);
 
-  printf("flow[0->1]: %s -> %s \n", to_str(&next_src[0]).c_str(), to_str(&next_dst[0]).c_str());
-  printf("flow[1->0]: %s -> %s \n", to_str(&next_src[1]).c_str(), to_str(&next_dst[1]).c_str());
+  printf("flow[0->1]: %s -> %s \n",
+      ether_addr2str(&next_src[0]).c_str(),
+      ether_addr2str(&next_dst[0]).c_str());
+  printf("flow[1->0]: %s -> %s \n",
+      ether_addr2str(&next_src[1]).c_str(),
+      ether_addr2str(&next_dst[1]).c_str());
 
   std::thread t(debug, mp);
   rte_eal_remote_launch(l2fwd, nullptr, 1);

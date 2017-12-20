@@ -561,6 +561,14 @@ inline void eth_dev_detach(size_t port_id)
   RTE_LOG(INFO, USER1, "Ethernet device \'%s\' was detached by ssn_nfvi\n", devname);
 }
 
+inline std::string ether_addr2str(const ether_addr* addr)
+{
+  std::string s;
+  for (size_t i=0; i<6; i++) {
+    s += dpdk::format("%02x%s", addr->addr_bytes[i], i<5?":":"");
+  }
+  return s;
+}
 
 } /* namespace dpdk */
 
