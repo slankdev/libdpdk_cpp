@@ -584,6 +584,94 @@ inline void rte_eth_macaddr_set(const char* str, ether_addr* addr)
   }
 }
 
+inline const char* ETH_LINK_SPEED2str(size_t num)
+{
+  switch (num) {
+    case ETH_LINK_SPEED_AUTONEG  : return "AUTONEG";
+    case ETH_LINK_SPEED_FIXED    : return "FIXED  ";
+    case ETH_LINK_SPEED_10M_HD   : return "10M_HD ";
+    case ETH_LINK_SPEED_10M      : return "10M    ";
+    case ETH_LINK_SPEED_100M_HD  : return "100M_HD";
+    case ETH_LINK_SPEED_100M     : return "100M   ";
+    case ETH_LINK_SPEED_1G       : return "1G     ";
+    case ETH_LINK_SPEED_2_5G     : return "2_5G   ";
+    case ETH_LINK_SPEED_5G       : return "5G     ";
+    case ETH_LINK_SPEED_10G      : return "10G    ";
+    case ETH_LINK_SPEED_20G      : return "20G    ";
+    case ETH_LINK_SPEED_25G      : return "25G    ";
+    case ETH_LINK_SPEED_40G      : return "40G    ";
+    case ETH_LINK_SPEED_50G      : return "50G    ";
+    case ETH_LINK_SPEED_56G      : return "56G    ";
+    case ETH_LINK_SPEED_100G     : return "100G   ";
+    default: {
+      std::string err = format("ETH_LINK_SPEED2str: invalid args (%zd 0x%x)", num, num);
+      throw exception(err.c_str());
+    }
+  }
+}
+
+inline const char* ETH_SPEED_NUM2str(size_t num)
+{
+  switch (num) {
+    case ETH_SPEED_NUM_NONE :  return "NONE";
+    case ETH_SPEED_NUM_10M  :  return "10M ";
+    case ETH_SPEED_NUM_100M :  return "100M";
+    case ETH_SPEED_NUM_1G   :  return "1G  ";
+    case ETH_SPEED_NUM_2_5G :  return "2_5G";
+    case ETH_SPEED_NUM_5G   :  return "5G  ";
+    case ETH_SPEED_NUM_10G  :  return "10G ";
+    case ETH_SPEED_NUM_20G  :  return "20G ";
+    case ETH_SPEED_NUM_25G  :  return "25G ";
+    case ETH_SPEED_NUM_40G  :  return "40G ";
+    case ETH_SPEED_NUM_50G  :  return "50G ";
+    case ETH_SPEED_NUM_56G  :  return "56G ";
+    case ETH_SPEED_NUM_100G :  return "100G";
+    default: {
+      std::string err = format("ETH_SPEED_NUM2str: invalid args (%zd 0x%x)", num, num);
+      throw exception(err.c_str());
+    }
+  }
+}
+
+inline std::string rte_pci_device2str(struct rte_pci_device* dev)
+{
+  std::string str = format("%04x:%02x:%02x.%01x",
+    dev->addr.domain, dev->addr.bus,
+    dev->addr.devid, dev->addr.function
+    );
+  return str;
+}
+
+inline void port_dump(size_t pid)
+{
+  constexpr const char* space = "        ";
+  struct rte_eth_stats stats;
+  int ret = rte_eth_stats_get(pid, &stats);
+  if (ret < 0) {
+    throw exception("some err occured");
+  }
+  struct ether_addr addr;
+  struct rte_eth_dev_info info;
+  rte_eth_macaddr_get(pid, &addr);
+  rte_eth_dev_info_get(pid, &info);
+
+  printf("dpdk%1zd   HWaddr %s %s%s\n", pid,
+      dpdk::ether_addr2str(&addr).c_str(),
+      rte_eth_promiscuous_get(pid)==1?"PROMISC ":"",
+      rte_eth_allmulticast_get(pid)==1?"MULTICAST ":"");
+  printf("%spciaddr %s socket_id:%u drv:%s\n",
+      space, rte_pci_device2str(info.pci_dev).c_str(),
+      rte_eth_dev_socket_id(pid), info.driver_name);
+  printf("%sRX packets:%zd errors:%zd missed:%zd nombuf:%zd \n", space,
+    stats.ipackets, stats.ierrors,
+    stats.imissed, stats.rx_nombuf);
+  printf("%sTX opackets:%zd errors:%zd RX nombuf:%zd\n",space,
+    stats.opackets, stats.oerrors, stats.rx_nombuf);
+  printf("%sRX bytes:%zd (%.1lf MB) TX bytes:%zd (%.1lf MB)\n", space,
+    stats.ibytes, stats.ibytes/1000000.0,
+    stats.obytes, stats.obytes/1000000.0);
+}
+
 } /* namespace dpdk */
 
 
