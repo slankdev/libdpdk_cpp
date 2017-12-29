@@ -3,42 +3,7 @@
 #include <unistd.h>
 #include <dpdk/wrap.h>
 #include <thread>
-
-class vport {
-  std::string name;
-  rte_ring* rx;
-  rte_ring* tx;
- public:
-  vport(const char* n) : name(n), rx(nullptr), tx(nullptr)
-  {
-    std::string rxname = name + "RX";
-    std::string txname = name + "TX";
-    rx = dpdk::ring_alloc(rxname.c_str(), 8192);
-    tx = dpdk::ring_alloc(txname.c_str(), 8192);
-    if (!rx || !tx)
-      throw dpdk::exception("ring_alloc");
-  }
-  virtual ~vport()
-  {
-    rte_ring_free(rx);
-    rte_ring_free(tx);
-  }
-  size_t tx_burst(rte_mbuf* const mbufs[], size_t n_mbufs)
-  {
-    size_t ret = rte_ring_mp_enqueue_burst(tx, (void**)mbufs, n_mbufs, nullptr);
-    return ret;
-  }
-  size_t rx_burst(rte_mbuf* mbufs[], size_t n_mbufs)
-  {
-    size_t ret = rte_ring_mc_dequeue_burst(rx, (void**)mbufs, n_mbufs, nullptr);
-    return ret;
-  }
-  void dump() const
-  {
-    rte_ring_dump(stdout, rx);
-    rte_ring_dump(stdout, tx);
-  }
-};
+#include "vport.h"
 
 vport* vports[2];
 

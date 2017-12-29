@@ -6,11 +6,13 @@ CXXFLAGS = -I$(LIB) $(DPDK_CXXFLAGS) -std=c++11 -Wno-format-security
 LDFLAGS  = $(DPDK_LDFLAGS)
 
 all:
-	$(CXX) $(CXXFLAGS) main.cc $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) nfvi.cc -o nfvi.out $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) vnf.cc  -o vnf.out  $(LDFLAGS)
 
 run:
-	sudo ./a.out \
-		--proc-type=secondary
+	sudo ./nfvi.out \
+		--vdev=net_tap0,iface=tap0 \
+		--vdev=net_tap1,iface=tap1 \
 
 rundumm:
 	sudo rm -f /tmp/sock0
