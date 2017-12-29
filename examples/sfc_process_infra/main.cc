@@ -33,6 +33,11 @@ class vport {
     size_t ret = rte_ring_mc_dequeue_burst(rx, (void**)mbufs, n_mbufs, nullptr);
     return ret;
   }
+  void dump() const
+  {
+    rte_ring_dump(stdout, rx);
+    rte_ring_dump(stdout, tx);
+  }
 };
 
 vport* vports[2];
@@ -59,8 +64,10 @@ int l2fwd(void*)
 
         size_t nb_deq = vports[pid]->rx_burst(mbufs, BURSTSZ);
         if (nb_deq != 0) {
-          printf("rx from vring%zd \n", pid);
-          size_t nb_send = rte_eth_tx_burst(pid, qid, mbufs, nb_recv);
+          printf("rx %zd packets from vring%zd \n", nb_deq, pid);
+          size_t nb_send = rte_eth_tx_burst(pid, qid, mbufs, nb_deq);
+          rte_pktmbuf_dump(stdout, mbufs[0], 0);
+          printf("tx %zd packets to port%zd\n", nb_send, pid);
           if (nb_send < nb_recv) {
             dpdk::rte_pktmbuf_free_bulk(&mbufs[nb_send], nb_recv-nb_send);
           }
@@ -68,6 +75,16 @@ int l2fwd(void*)
 
 			}
     }
+  }
+}
+
+void debug()
+{
+  for (size_t i=0; ; i++) {
+    printf("-0x%lx--------------------------\n", i);
+    vports[0]->dump();
+    vports[1]->dump();
+    sleep(1);
   }
 }
 
@@ -89,7 +106,9 @@ int main(int argc, char** argv)
   vports[0] = new vport("vport0");
   vports[1] = new vport("vport1");
 
+  // std::thread t(debug);
   rte_eal_remote_launch(l2fwd, nullptr, 1);
+  // t.join();
   rte_eal_mp_wait_lcore();
 }
 

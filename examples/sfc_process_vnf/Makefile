@@ -10,8 +10,7 @@ all:
 
 run:
 	sudo ./a.out \
-		--vdev=net_tap0,iface=tap0 \
-		--vdev=net_tap1,iface=tap1 \
+		--proc-type=secondary
 
 rundumm:
 	sudo rm -f /tmp/sock0
