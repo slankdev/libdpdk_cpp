@@ -110,7 +110,7 @@ int main(int argc, char** argv)
    */
   struct rte_eth_conf port_conf;
   dpdk::init_portconf(&port_conf);
-  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP");
+  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP", 0, 8192);
   port_conf.rxmode.mq_mode = ETH_MQ_RX_RSS;
   port_conf.rx_adv_conf.rss_conf.rss_key = NULL;
   port_conf.rx_adv_conf.rss_conf.rss_hf = ETH_RSS_IP|ETH_RSS_TCP|ETH_RSS_UDP;

@@ -4,7 +4,7 @@
 #include <dpdk/wrap.h>
 #include <thread>
 
-constexpr size_t n_queues = 4;
+constexpr size_t n_queues = 1;
 int l2fwd(void*)
 {
   const size_t n_ports = rte_eth_dev_count();
