@@ -4,7 +4,7 @@
 #include <dpdk/wrap.h>
 #include <thread>
 
-constexpr size_t n_queues = 1;
+constexpr size_t n_queues = 4;
 int l2fwd(void*)
 {
   const size_t n_ports = rte_eth_dev_count();
@@ -16,6 +16,7 @@ int l2fwd(void*)
 
 				size_t nb_recv = rte_eth_rx_burst(pid, qid, mbufs, BURSTSZ);
 				if (nb_recv == 0) continue;
+        // printf("%zd:%zd \n", pid,qid);
 				size_t nb_send = rte_eth_tx_burst(pid^1, qid, mbufs, nb_recv);
         if (nb_send < nb_recv) {
           dpdk::rte_pktmbuf_free_bulk(&mbufs[nb_send], nb_recv-nb_send);
@@ -39,6 +40,9 @@ int main(int argc, char** argv)
   dpdk::dpdk_boot(argc, argv);
   struct rte_eth_conf port_conf;
   dpdk::init_portconf(&port_conf);
+  port_conf.rxmode.mq_mode = ETH_MQ_RX_RSS;
+  port_conf.rx_adv_conf.rss_conf.rss_key = NULL;
+  port_conf.rx_adv_conf.rss_conf.rss_hf = ETH_RSS_IP|ETH_RSS_TCP|ETH_RSS_UDP;
   struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP", 0, 8192);
 
   size_t n_ports = rte_eth_dev_count();
