@@ -320,11 +320,12 @@ inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
 
 inline void mp_dump(const rte_mempool* mp)
 {
-  printf("name : %s  \n", mp->name);
-  printf("size : %u  \n", mp->size);
-  printf("use/avail: %u/%u  \n",
-      rte_mempool_in_use_count(mp),
-      rte_mempool_avail_count(mp));
+  printf("name     : %s \n", mp->name);
+  printf("socket_id: %u \n", mp->socket_id);
+  printf("size     : %u (using %.0f%%) \n", mp->size,
+      rte_mempool_in_use_count(mp)/float(mp->size)*100);
+  printf("in-use   : %u \n", rte_mempool_in_use_count(mp));
+  printf("avail    : %u \n", rte_mempool_avail_count(mp));
 }
 
 inline rte_ring* ring_alloc(const char* name, size_t sizeofring)
