@@ -1,8 +1,11 @@
 
+LIBSLANKDEV := $(HOME)/git/libslankdev
 LIB = $(HOME)/git/libdpdk_cpp
 include $(LIB)/mk/dpdk.cpp.mk
 
-CXXFLAGS = -I$(LIB) $(DPDK_CXXFLAGS) -std=c++11 -Wno-format-security
+CXXFLAGS = -std=c++11 -Wno-format-security
+CXXFLAGS += -I$(LIB) $(DPDK_CXXFLAGS)
+CXXFLAGS += -I$(LIBSLANKDEV)
 LDFLAGS  = $(DPDK_LDFLAGS)
 
 all:
