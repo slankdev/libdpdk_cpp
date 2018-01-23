@@ -17,8 +17,8 @@ class vport {
       if (!rx || !tx)
         throw dpdk::exception("ring_alloc");
     } else {
-      rx = dpdk::ring_alloc(rxname.c_str(), 8192);
-      tx = dpdk::ring_alloc(txname.c_str(), 8192);
+      rx = dpdk::ring_alloc(rxname.c_str(), 8192, 0);
+      tx = dpdk::ring_alloc(txname.c_str(), 8192, 0);
       if (!rx || !tx)
         throw dpdk::exception("ring_alloc");
     }

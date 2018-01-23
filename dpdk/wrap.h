@@ -328,7 +328,7 @@ inline void mp_dump(const rte_mempool* mp)
   printf("avail    : %u \n", rte_mempool_avail_count(mp));
 }
 
-inline rte_ring* ring_alloc(const char* name, size_t sizeofring)
+inline rte_ring* ring_alloc(const char* name, size_t sizeofring, int socket_id)
 {
   /*
    * 2nd argument, sizeofringm must be power of 2
@@ -336,7 +336,6 @@ inline rte_ring* ring_alloc(const char* name, size_t sizeofring)
    *   good: 64, 128, 1024
    *   bad : 1000
    */
-  int socket_id  = rte_socket_id();
   uint32_t flags = 0;
   rte_ring* r = dpdk::ring_create(name, sizeofring, socket_id, flags);
   return r;
