@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 
   struct rte_eth_conf port_conf;
   dpdk::init_portconf(&port_conf);
-  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP");
+  struct rte_mempool* mp = dpdk::mp_alloc("RXMBUFMP", 0, 8192);
 
   size_t n_ports = rte_eth_dev_count();
   printf("%zd ports found\n", n_ports);

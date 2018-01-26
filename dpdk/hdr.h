@@ -43,25 +43,24 @@
 #include <rte_lcore.h>
 #include <rte_mbuf.h>
 #include <rte_hexdump.h>
-#include <rte_ip.h>
 #include <rte_ip_frag.h>
 #include <rte_ring.h>
 #include <rte_config.h>
 #include <rte_version.h>
 #include <rte_eal.h>
-#include <rte_ethdev.h>
-#include <rte_ether.h>
-#include <rte_cycles.h>
 #include <rte_lcore.h>
-#include <rte_mbuf.h>
 #include <rte_hexdump.h>
 #include <rte_ip.h>
-#include <rte_ip_frag.h>
 #include <rte_timer.h>
 #include <rte_flow.h>
 #include <rte_acl.h>
 #include <rte_log.h>
 #include <rte_pci.h>
-
+#include <rte_debug.h>
+#include <rte_mempool.h>
+#include <rte_tcp.h>
+#include <rte_udp.h>
+#include <rte_lpm.h>
+#include <rte_lpm6.h>
 
 

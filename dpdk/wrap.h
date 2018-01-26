@@ -301,7 +301,6 @@ inline void set_mbuf_raw(rte_mbuf* mbuf, const void* data, size_t len)
 inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
 {
   constexpr size_t MBUF_CACHE_SIZE = 0;
-  size_t nb_ports = rte_eth_dev_count();
 
 	struct rte_mempool* mp = rte_pktmbuf_pool_create(
       name,
@@ -475,7 +474,7 @@ inline void safe_ring_dequeue(rte_ring* ring, void** data)
 inline void safe_ring_enqueue_bulk(rte_ring* ring, void* const* objs, size_t n)
 {
   int ret = rte_ring_enqueue_bulk(ring, objs, n, nullptr);
-  if (ret != n) throw dpdk::exception("rte_ring_enqueue_bulk: miss");
+  if (size_t(ret) != n) throw dpdk::exception("rte_ring_enqueue_bulk: miss");
 }
 
 

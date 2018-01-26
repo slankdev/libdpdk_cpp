@@ -1,9 +1,9 @@
 #!/bin/sh
 
 QEMU=qemu-system-x86_64
-HDAPATH=/home/slank/qemu/u1604.qcow2
+HDAPATH=/home/slank/qemu/vm0.img
 SOCKPATH=/tmp/sock0
-HPPATH=/mnt/huge_kvm
+HPPATH=/dev/hugepages
 
 
 numactl --physcpubind=4-7 $QEMU \
