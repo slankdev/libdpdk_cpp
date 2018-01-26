@@ -720,6 +720,21 @@ inline size_t eth_dev_count()
   return rte_eth_dev_count();
 }
 
+inline size_t lcore_id() { return rte_lcore_id(); }
+inline size_t lcore_count() { return rte_lcore_count(); }
+inline size_t socket_id() { return rte_socket_id(); }
+inline size_t socket_count()
+{
+  size_t n_lcore = rte_lcore_count();
+  size_t max = 0;
+  for (size_t i=0; i<n_lcore; i++) {
+    size_t sid = rte_lcore_to_socket_id(i);
+    if (max < sid) max = sid;
+  }
+  return max + 1;
+}
+
+
 
 
 
