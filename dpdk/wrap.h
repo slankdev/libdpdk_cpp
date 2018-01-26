@@ -34,6 +34,7 @@
 #include <sstream>
 #include <ostream>
 
+#define RTE_LOGTYPE_DPDKCPP RTE_LOGTYPE_USER1
 #define UNUSED(x) (void)(x)
 
 namespace dpdk {
@@ -670,6 +671,57 @@ inline void port_dump(size_t pid)
     stats.ibytes, stats.ibytes/1000000.0,
     stats.obytes, stats.obytes/1000000.0);
 }
+
+
+inline void eth_dev_start(size_t pid)
+{
+  int ret = rte_eth_dev_start(pid);
+  if (ret < 0) {
+    throw dpdk::exception("eth dev start");
+  }
+  RTE_LOG(INFO, DPDKCPP, "port%zd dev start\n", pid);
+}
+
+inline void eth_dev_stop(size_t pid)
+{
+  rte_eth_dev_stop(pid);
+  RTE_LOG(INFO, DPDKCPP, "port%zd dev stop\n", pid);
+}
+
+inline void eth_promisc_disable(size_t pid)
+{
+  rte_eth_promiscuous_disable(pid);
+  RTE_LOG(INFO, DPDKCPP, "port%zd promisc disabled\n", pid);
+}
+
+inline void eth_promisc_enable(size_t pid)
+{
+  rte_eth_promiscuous_enable(pid);
+  RTE_LOG(INFO, DPDKCPP, "port%zd promisc enabled\n", pid);
+}
+
+inline void eth_dev_link_down(size_t pid)
+{
+  RTE_LOG(INFO, DPDKCPP, "port%zd dev link down\n", pid);
+  rte_eth_dev_set_link_down(pid);
+}
+
+inline void eth_dev_link_up(size_t pid)
+{
+  int ret = rte_eth_dev_set_link_up(pid);
+  if (ret < 0) {
+    throw slankdev::exception("ssn_port_link_up");
+  }
+  RTE_LOG(INFO, DPDKCPP, "port%zd dev link up\n", pid);
+}
+
+inline size_t eth_dev_count()
+{
+  return rte_eth_dev_count();
+}
+
+
+
 
 } /* namespace dpdk */
 
