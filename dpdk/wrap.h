@@ -710,7 +710,7 @@ inline void eth_dev_link_up(size_t pid)
 {
   int ret = rte_eth_dev_set_link_up(pid);
   if (ret < 0) {
-    throw slankdev::exception("ssn_port_link_up");
+    throw dpdk::exception("ssn_port_link_up");
   }
   RTE_LOG(INFO, DPDKCPP, "port%zd dev link up\n", pid);
 }
