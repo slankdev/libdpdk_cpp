@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
   /* init vhostuser port */
   std::string devargs = format(
-      "net_vhost0,iface=/tmp/sock0,queues=%zd", n_queues);
+      "net_vhost0,iface=/home/slank/sock0,queues=%zd", n_queues);
   uint8_t vhost_pid;
   int ret = rte_eth_dev_attach(devargs.c_str(), &vhost_pid);
   if (ret < 0) {

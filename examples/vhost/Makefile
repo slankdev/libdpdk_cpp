@@ -10,8 +10,6 @@ LDFLAGS  = $(DPDK_LDFLAGS)
 all:
 	$(CXX) $(CXXFLAGS) main.cc $(LDFLAGS)
 
-SOCK=/tmp/sock0
 run:
-	sudo rm -f $(SOCK)
-	sudo ./a.out
+	sudo ./a.out --socket-mem=1024,1024
 
