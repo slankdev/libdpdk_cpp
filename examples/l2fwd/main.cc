@@ -16,10 +16,10 @@ int l2fwd(void*)
 
 				size_t nb_recv = rte_eth_rx_burst(pid, qid, mbufs, BURSTSZ);
 				if (nb_recv == 0) continue;
-        // printf("%zd:%zd \n", pid,qid);
-				size_t nb_send = rte_eth_tx_burst(pid^1, qid, mbufs, nb_recv);
-        if (nb_send < nb_recv) {
-          dpdk::rte_pktmbuf_free_bulk(&mbufs[nb_send], nb_recv-nb_send);
+        for (size_t i=0; i<nb_recv; i++) {
+          rte_pktmbuf_dump(stdout, mbufs[i], mbufs[i]->pkt_len);
+          size_t nb_send = rte_eth_tx_burst(pid^1, qid, &mbufs[i], 1);
+          if (nb_send < 1) rte_pktmbuf_free(mbufs[i]);
         }
 			}
     }

@@ -29,6 +29,7 @@
 #include <dpdk/hdr.h>
 #include <dpdk/struct.h>
 
+#include <assert.h>
 #include <string>
 #include <exception>
 #include <sstream>
@@ -290,6 +291,19 @@ inline void dpdk_boot(int argc, char** argv)
   }
 }
 
+inline void dpdk_boot_nopciattach(int argc, char** argv)
+{
+  argc += 1;
+  char opt0[] = "-w 0000:00:00.0";
+  char* wrapped_argv[argc];
+  wrapped_argv[0] = argv[0];
+  wrapped_argv[1] = opt0;
+  for (size_t i=2,j=1; i<argc; i++,j++) {
+    wrapped_argv[i] = argv[j];
+  }
+  dpdk_boot(argc, wrapped_argv);
+  assert(rte_eth_dev_count() == 0);
+}
 
 inline void set_mbuf_raw(rte_mbuf* mbuf, const void* data, size_t len)
 {
@@ -311,7 +325,8 @@ inline rte_mempool* mp_alloc(const char* name, size_t socket_id, size_t size)
       RTE_MBUF_DEFAULT_BUF_SIZE,
       socket_id);
   if (!mp) {
-    std::string e = "rte_pktmbuf_pool_create: ";
+    std::string e;
+    e = dpdk::format("rte_pktmbuf_pool_create(name=%s): ", name);
     e += rte_strerror(rte_errno);
     throw dpdk::exception(e.c_str());
   }
@@ -734,6 +749,17 @@ inline size_t socket_count()
   return max + 1;
 }
 
+inline void eth_sendbin(size_t pid, size_t qid,
+    const uint8_t* buf, size_t size, rte_mempool* mp)
+{
+  rte_mbuf* mbuf = rte_pktmbuf_alloc(mp);
+  uint8_t* ptr = rte_pktmbuf_mtod(mbuf, uint8_t*);
+  memcpy(ptr, buf, size);
+  mbuf->pkt_len = size;
+  mbuf->data_len = size;
+  rte_pktmbuf_dump(stdout, mbuf, mbuf->pkt_len);
+  rte_eth_tx_burst(pid, qid, &mbuf, 1);
+}
 
 
 
