@@ -10,7 +10,7 @@ all:
 
 
 run:
-	sudo ./a.out \
+	./a.out \
 		--proc-type=auto -m 1024,1024 --no-pci \
 		--vdev=virtio_user0,path=/var/run/usvhost0 \
 		--file-prefix=container

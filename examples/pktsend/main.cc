@@ -30,6 +30,7 @@ int main(int argc, char** argv)
   mbuf->data_len = sizeof(pkt);
 
   rte_pktmbuf_dump(stdout, mbuf, mbuf->pkt_len);
+  rte_eth_tx_burst(0, 0, &mbuf, 1);
 }
 
 
