@@ -9,9 +9,18 @@ all:
 	$(CXX) $(CXXFLAGS) main.cc $(LDFLAGS)
 
 run:
-	sudo rm -f /tmp/sock0
-	sudo rm -f /tmp/sock1
+	sudo rm -rf sock0
+	sudo rm -rf sock1
 	sudo ./a.out \
-		--socket-mem=4000 \
-		--vdev=net_vhost0,iface=/tmp/sock0 \
-		--vdev=net_vhost1,iface=/tmp/sock1
+		--socket-mem=1024,1024 \
+		--vdev=net_vhost0,iface=sock0 \
+		--vdev=net_vhost1,iface=sock1 \
+		--file-prefix=host --no-pci
+
+client:
+	sudo ./a.out \
+		--proc-type=auto \
+		--socket-mem=1025,1024 \
+		--vdev=net_virtio_user0,path=sock0 \
+		--vdev=net_virtio_user1,path=sock1
+
