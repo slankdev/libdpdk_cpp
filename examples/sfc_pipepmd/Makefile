@@ -26,7 +26,7 @@ runi:
 	sudo ./nfvi.out -m 1024,1024 --proc-type=primary
 
 runv:
-	sudo ./vnf.out -m 1024,1024 --proc-type=secondary
+	sudo ./vnf.out -m 8000,0 --proc-type=secondary
 
 gdbi:
 	sudo gdb --args ./nfvi.out -m 1024,1024 --proc-type=primary
