@@ -62,5 +62,5 @@
 #include <rte_udp.h>
 #include <rte_lpm.h>
 #include <rte_lpm6.h>
-
+#include <rte_kni.h>
 
